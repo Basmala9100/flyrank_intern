@@ -306,5 +306,22 @@ Changing the target definition can change what the model learns and how the outp
 5. Human context
 
 The model does not have every piece of context available to an experienced content reviewer.
-
 Business priorities, editorial requirements, search intent, brand considerations, and recent changes may not be fully represented in the available features.
+
+
+AI Transparency
+
+I used AI assistants as build partners throughout the project.
+
+AI was used to help:
+
+draft and explain code,
+debug implementation issues,
+explain technical concepts,
+review notebook structure,
+suggest alternative approaches,
+and improve documentation.
+
+I remained responsible for checking the code, methodology, validation design, metrics, and claims.
+
+The final project deliberately keeps human review in the loop because model output is decision support rather than an automatic content-publishing system.
