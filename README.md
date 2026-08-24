@@ -1,116 +1,310 @@
-# FlyRank ML Internship — Starter Repo
+# FlyRank ML Internship — Content Optimization Prioritization
 
-**Applied Search Intelligence: Google Search Ranking & Discoverability**
+**Applied Search Intelligence: Content Prioritization for Human Review**
 
-This is the starting point for the FlyRank ML Internship. You **clone it into your own public
-repo** (one click — *Use this template*), build everything there, and submit that repo URL on
-each assignment in your portal — it's your workspace, your submission, and your portfolio all
-at once. The rhythm is simple: do the work, commit it, submit on the card. Done.
+This repository contains my work for the FlyRank ML Internship.
 
-Everything here runs on a small **anonymized** slice of real FlyRank search data. No credentials,
-no private client data, no setup headaches.
+The project focuses on a practical content-optimization problem:
 
-> **New here?** Two reads: **[SETUP.md](SETUP.md)** (GitHub, Colab, and data access — ten
-> minutes, with every silent pitfall flagged), then **[GUIDE.md](GUIDE.md)** (every file
-> explained, what to edit vs. leave alone, and where your own work goes — five minutes).
+> **Which content pages should a content or SEO team review first?**
+
+I built a decision-support workflow that starts with observable content and performance signals, establishes a transparent baseline, compares it with machine-learning models, validates the modeling approach, audits for leakage, and turns the validated output into a human-reviewed action playbook.
+
+The goal is **prioritization**, not automatic content editing or a claim about Google's ranking algorithm.
 
 ---
 
-## Quickstart — first win in 2 minutes
+## Project Overview
 
-The fastest path is Google Colab (one click, zero install). Open Notebook 1 and run all cells:
+Content teams may have many pages that could potentially be improved, but limited time to review them.
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/flyrank-bih/flyrank-ml-internship-starter/blob/main/notebooks/01_first_look_and_discovery.ipynb)
- **Week 1 — Run it, then discover a real truth yourself**
+Instead of treating every page equally, this project produces a ranked queue of pages that are worth investigating first.
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/flyrank-bih/flyrank-ml-internship-starter/blob/main/notebooks/02_your_first_readable_model.ipynb)
- **Week 2 — The model is just a rule you can read**
-
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/flyrank-bih/flyrank-ml-internship-starter/blob/main/notebooks/03_working_with_the_full_release.ipynb)
- **Weeks 3+ — The full release (~79M rows) via DuckDB, no download needed** — hosted at
- [`FlyRank/internship-warehouse`](https://huggingface.co/datasets/FlyRank/internship-warehouse) (gated: request access + accept the data-use terms, approval is instant)
-
-### Prefer local?
-
-```bash
-git clone <this-repo-url>
-cd flyrank-ml-internship-starter
-pip install -r requirements.txt          # or: uv pip install -r requirements.txt
-python scripts/run_all.py
-```
-
-That runs the whole pipeline on the bundled sample and writes results to `outputs/`.
-
----
-
-## What you get
-
-| Path | What it is |
-|---|---|
-| `notebooks/` | Week 1–2 **first-win notebooks** (Colab-ready). Start here. |
-| `scripts/01–05` + `run_all.py` | The runnable reference pipeline: prepare → baseline → train → evaluate → PDF. |
-| `data/raw/content_refresh_anonymized.csv` | The anonymized starter dataset (~30k pages). |
-| `outputs/` | Example outputs so you can see the **target shape** (`model_report.md`, `refresh_queue_sample.csv`, `charts/`). |
-| `work/` | **Your space.** Lane experiments and your capstone live here — see `work/README.md`. |
-| `docs/` | The core docs + the data dictionary (see below). |
-
-### Read these (in `docs/`)
-
-1. **`ml-core-foundation-framework.md`** — the first-principles map of ML as a whole system. The backbone of the live sessions.
-2. **`ml-intern-dataset-and-lane-guide.md`** — how to use the data safely, the capstone workflow, and the analysis "lanes" you can pick from.
-3. **`intern-free-tooling-guide.md`** — the zero-budget tool stack (Python, Colab, free AI assistants). You never need to pay for anything.
-4. **`data-dictionary.md`** — all 44 columns: meaning, scale, and gotchas. Keep it open while you work.
-
----
-
-## The pipeline (what `run_all.py` does)
+The workflow is:
 
 ```text
-01_prepare_features.py   clean + build the feature vector, define the label
-02_baseline_score.py     a transparent hand-rule "fix this first" score
-03_train_model.py        logistic regression, decision tree, random forest (client-holdout split)
-04_evaluate_and_export.py  ranked queue + charts + Markdown report
-05_build_pdf_report.py   a shareable PDF summary
-```
+FlyRank Content Data
+        |
+        v
+Feature Preparation
+        |
+        v
+Signal Audit
+        |
+        v
+Transparent Baseline
+        |
+        v
+Machine-Learning Model
+        |
+        v
+Validation + Leakage Audit
+        |
+        v
+Action Playbook
+        |
+        v
+Ranked Review Queue
+        |
+        v
+Human Review
 
-On the bundled sample, the learned model clearly beats the hand-written rule at picking the right
-pages to review first (**Precision@50 ≈ 0.24 → 0.74**; the model number can land 0.68–0.74
-depending on library versions — the ~3x lift is the point). The notebooks compute these numbers
-live, so they always reflect the current data and environment.
 
-**Teaching point:** the model is the capstone, but the *workflow* is the lesson —
-`problem framing → data cleaning → baseline → first model → evaluation → explainable recommendation`.
+The Problem
 
----
+The project started from a simple operational question:
 
-## Data safety (read `DATA_USE.md`)
+How can we prioritize content pages for review using observable signals without overstating what the data can prove?
 
-- Only the small **anonymized** CSV ships here — no client names, domains, URLs, titles, or keywords.
-- **Never** add raw private client data to this repo or your fork. Need more data? Request an approved
-  release from your mentor — never export it yourself.
-- Don't paste client data into third-party AI tools.
-- Frame every result as **observed / measured / directional / decision-support** — never
-  "I predicted Google's algorithm."
+The system therefore focuses on decision support.
 
-The `.gitignore` blocks datasets by default, and CI fails any commit that includes a dataset.
+It does not claim:
 
----
+that the model predicts Google's algorithm,
+that every recommended page needs an edit,
+that an edit will cause a ranking recovery,
+or that observational data proves causality.
 
-## Assignments & schedule
+The recommendations are candidates for human review.
 
-Weekly assignments, live events, and the capstone live on **your portal board** (your
-enrollment email has your access link). This repo is the shared technical foundation they all
-build on — and the `skills/` folder here is the instruction library for your AI assistant
-(start at [skills/README.md](skills/README.md)).
+Data
 
-**First time with GitHub?** You need exactly four things (full walkthrough: [SETUP.md](SETUP.md)):
-1. A free account at github.com.
-2. Your own copy of this repo: **Use this template → Create a new repository** → public.
-   (One click — brings the notebooks, `work/`, and the CI leak-guard with it.)
-3. In Colab: *File → Save a copy in GitHub* → pick your copy, branch `main` (Colab handles auth).
-4. That's your submission repo — share its **github.com/you/your-repo** URL with Assignment 1
-   (never a colab.research.google.com or drive.google.com link).
+The project uses an anonymized FlyRank content-performance dataset.
 
----
+The main data sources include:
 
-*Track leads: Mirza Ašćerić (ML) · Hole (data engineering). Code under MIT (see `LICENSE`); data under `DATA_USE.md`.*
+dim_content
+fact_content_daily_performance
+
+The content data contains signals such as:
+
+content creation and update dates,
+content type,
+search volume,
+competition,
+backlinks,
+content depth,
+word count,
+optimization dates,
+publication status.
+
+Performance data provides observable search and engagement signals used to evaluate content behavior.
+
+The public project intentionally excludes identifying client information.
+
+Data Safety
+
+This project follows the public-safe rules of the internship.
+
+Client identities are not published.
+Raw client domains and URLs are not published.
+Private queries and identifying content fields are not published.
+Sensitive client data is not added to the repository.
+Outputs are framed using terms such as observed, measured, directional, and decision-support.
+The project does not claim to reveal or predict Google's ranking algorithm.
+
+The repository's data-use and leak-guard rules should be followed before committing new files.
+
+Method
+
+The project was developed progressively rather than starting with a complex model.
+
+1. Signal Audit
+
+Before modeling, I checked whether important signals were actually present and useful in the data.
+
+Two signals were examined using bucket-level summaries and counts.
+
+At least one of the audited signals was connected to a real FlyRank flag from the training material.
+
+The purpose was to avoid building a rule around a signal without first checking whether the signal behaved as expected.
+
+2. Baseline
+
+I created a transparent baseline before introducing machine learning.
+
+The baseline uses observable signals to produce:
+
+a score,
+one reason code,
+and an action label.
+
+The baseline creates a ranked queue of pages for review.
+
+This provided a simple reference point that the Week-5 models had to beat.
+
+3. Machine-Learning Model
+
+The Week-5 modeling stage compared several approaches from the internship toolkit, including:
+
+Logistic Regression
+Decision Tree
+Random Forest
+
+The model was evaluated against the Week-4 baseline using the same ranking-oriented evaluation framework.
+
+The purpose was not to reward complexity.
+
+A more complex model was useful only if it provided better evidence for the actual prioritization task.
+
+Model Evaluation
+
+The starter modeling evaluation produced the following results:
+
+Method	ROC AUC	Average Precision	Precision@50
+Baseline rules	0.627	0.468	0.240
+Logistic Regression	0.700	0.522	0.400
+Decision Tree	0.742	0.575	0.540
+Random Forest	0.750	0.618	0.740
+
+The Random Forest produced the strongest Precision@50 in this evaluation.
+
+However, these numbers are interpreted as evaluation results on the available anonymized starter slice, not as a production benchmark.
+
+The modeling work also included validation and methodology checks in later weeks.
+
+Validation
+
+A major part of the project was checking whether the apparent model performance was trustworthy.
+
+The validation work included:
+
+an honest client-grouped validation design,
+comparison of validation approaches,
+feature leakage checks,
+inspection of real failure examples,
+and rewriting claims that went beyond the available evidence.
+
+Client-grouped validation is important because rows from the same client can otherwise appear in both training and test data and make performance look stronger than it really is.
+
+The project therefore treats validation design as part of the modeling work rather than as a final reporting step.
+
+Leakage Audit
+
+Features were reviewed for possible future information.
+
+The main question was:
+
+Could this feature contain information that would only be known after the decision point?
+
+Features derived from future outcomes or post-decision behavior should not be used to justify a recommendation.
+
+The final analysis therefore distinguishes between:
+
+information available when making the decision,
+information observed later,
+and information that should not be used as an input.
+
+This is important because a model can have excellent metrics while still being unusable if it has access to future information.
+
+Action Playbook
+
+The model output is converted into an action-oriented review queue.
+
+Each recommendation contains:
+
+a priority score,
+a reason code,
+an action label,
+and enough context for a human reviewer to investigate the page.
+
+The playbook also defines:
+
+intended use,
+human-review rules,
+no-go cases,
+monitoring triggers,
+retraining considerations,
+and practical cost/value thinking.
+
+The model does not directly publish or modify content.
+
+Intended Use
+
+The intended use is:
+
+Prioritize content pages for human review.
+
+A content or SEO reviewer can use the ranked queue to decide where to spend investigation time first.
+
+The output can support questions such as:
+
+Which pages should I inspect first?
+Why was this page prioritized?
+Is the recommendation consistent with the page's current state?
+Does the page actually need an update?
+Is there another explanation for the observed behavior?
+Human Review
+
+Human review remains part of the workflow.
+
+A reviewer should check:
+
+Whether the recommendation makes sense for the actual page.
+Whether the reason code matches the page's current state.
+Whether important context is missing from the model.
+Whether the proposed action is appropriate.
+Whether there is a reason to reject the recommendation.
+
+The model is therefore a prioritization aid rather than an autonomous content-management system.
+
+What Should NOT Be Automated
+
+The following should not be automatically executed based only on the model output:
+
+publishing content changes,
+deleting pages,
+rewriting pages,
+changing titles or metadata automatically,
+declaring that a page will recover,
+claiming that an edit caused a ranking improvement,
+making client-facing claims without human review.
+
+The model can recommend where to look.
+
+A human decides what should actually happen.
+
+Limitations
+
+The project has several important limitations.
+
+1. Observational data
+
+The analysis uses observational data.
+
+Therefore, a relationship between a signal and a later outcome does not prove that the signal caused the outcome.
+
+For example:
+
+A page being refreshed and later performing better does not by itself prove that the refresh caused the improvement.
+
+2. Dataset scope
+
+The modeling evaluation uses an anonymized starter slice rather than the complete production warehouse.
+
+The starter dataset is approximately 30,000 rows, while the full warehouse is much larger.
+
+Therefore, the reported metrics should not be presented as a benchmark for the entire FlyRank warehouse.
+
+3. Model generalization
+
+Model performance can change across:
+
+clients,
+time periods,
+content types,
+and different data distributions.
+
+A strong result on one evaluation slice does not guarantee the same performance everywhere.
+
+4. Target definition
+
+The usefulness of the model depends on how the target is defined.
+
+Changing the target definition can change what the model learns and how the output should be interpreted.
+
+5. Human context
+
+The model does not have every piece of context available to an experienced content reviewer.
+
+Business priorities, editorial requirements, search intent, brand considerations, and recent changes may not be fully represented in the available features.
